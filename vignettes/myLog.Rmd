@@ -1,0 +1,94 @@
+---
+title: "Introduction to myLog"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to myLog}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+# myLog: Logistic Regression Package
+
+This vignette demonstrates the core features of the `myLog` package, including training logistic regression models, making predictions, and preprocessing data.
+
+## Installation
+
+Install the package using:
+
+```r
+# Install devtools if not already installed
+install.packages("devtools")
+
+# Install from GitHub
+devtools::install_github("tunbo777/myLog")
+```
+
+## Example: Dara preprocessing
+```{r, echo = TRUE, results = "markup",eval = TRUE}
+library(myLog)
+
+set.seed(123)
+X <- matrix(rnorm(100), ncol = 5)
+y <- sample(0:1, 20, replace = TRUE)
+processed <- prepare_data(X, y)
+
+# View processed data
+head(processed$X)
+```
+
+## Example: Training a logistics regression model
+```{r, echo = TRUE, results = "markup",eval = TRUE}
+
+# Train the model
+model <- train_logistic(X, y)
+
+# View model coefficients
+print(model$coefficients)
+```
+
+## Example: Making predictions
+```{r, echo = TRUE, results = "markup",eval = TRUE}
+# Predict probabilities
+predictions <- predict_logistic(model, X)
+
+# View predictions
+head(predictions)
+```
+
+## Comparison: Compared with orginical R function
+```{r, echo = TRUE, results = "markup",eval = TRUE}
+# Train logistic model using myLog
+my_model <- train_logistic(X, y)
+
+# Train logistic model using glm() in R
+df <- data.frame(y = y, X)
+glm_model <- glm(y ~ ., data = df, family = binomial)
+
+# Compare the coefficients
+all.equal(as.numeric(coef(glm_model)), as.numeric(my_model$coefficients))
+
+# Compare the efficiency
+library(bench)
+
+bench_results <- bench::mark(
+  MyLogistic = train_logistic(X, y),
+  R_glm = glm(y ~ ., data = df, family = binomial),
+  check = FALSE
+)
+
+print(bench_results)
+```
+
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, include = FALSE}
+library(myLog)
+```
